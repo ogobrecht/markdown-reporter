@@ -84,7 +84,7 @@ If your system is working locally then it is time to check it over a HTTP connec
 SELECT httpuritype('http://yourHost:yourPort/pandoc').getclob() FROM dual;
 ```
 
-Now try to convert your first report by calling this example Markdown:
+Now try to generate your first report by executing this example Query in a SQL tool of your choice:
 
     SELECT markdown_reporter.convert_document(p_format   => 'pdf'
                                              ,p_markdown => markdown_reporter.preprocess_data(p_markdown => q'[
