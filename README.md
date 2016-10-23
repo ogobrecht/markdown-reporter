@@ -86,69 +86,67 @@ SELECT httpuritype('http://yourHost:yourPort/pandoc').getclob() FROM dual;
 
 Now try to convert your first report by calling this example Markdown:
 
-``````sql
-SELECT markdown_reporter.convert_document(p_format   => 'pdf'
-                                         ,p_markdown => markdown_reporter.preprocess_data(p_markdown => q'[
----
-title: Testdocument - Reporting a different way, thank Markdown
-author: Ottmar Gobrecht
-date: 2016-10-10
-lang: en
-papersize: a4paper
-geometry: top=2cm, bottom=2cm, left=2cm, right=2cm
-fontsize: 11pt
-documentclass: article
-classoption: twocolumn
----
+    SELECT markdown_reporter.convert_document(p_format   => 'pdf'
+                                             ,p_markdown => markdown_reporter.preprocess_data(p_markdown => q'[
+    ---
+    title: Testdocument - Reporting a different way, thank Markdown
+    author: Ottmar Gobrecht
+    date: 2016-10-10
+    lang: en
+    papersize: a4paper
+    geometry: top=2cm, bottom=2cm, left=2cm, right=2cm
+    fontsize: 11pt
+    documentclass: article
+    classoption: twocolumn
+    ---
 
-*Some detailed explanation for your report.*
+    *Some detailed explanation for your report.*
 
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet...
+    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet...
 
-``` { .sql .chart .pie caption="A pie chart with hypothetical values" }
-SELECT 'New York' AS "location"
-       ,20000 AS "sales 2015"
-       ,30000 AS "sales 2016"
-       ,35000 AS "sales 2017"
-  FROM dual
-UNION ALL
-SELECT 'Rio', 30000, 35000, 38000
-  FROM dual
-UNION ALL
-SELECT 'Tokio', 40000, 42000, 44000
-  FROM dual;
-```
+    ``` { .sql .chart .pie caption="A pie chart with hypothetical values" }
+    SELECT 'New York' AS "location"
+           ,20000 AS "sales 2015"
+           ,30000 AS "sales 2016"
+           ,35000 AS "sales 2017"
+      FROM dual
+    UNION ALL
+    SELECT 'Rio', 30000, 35000, 38000
+      FROM dual
+    UNION ALL
+    SELECT 'Tokio', 40000, 42000, 44000
+      FROM dual;
+    ```
 
-``` { .sql .chart .bar }
-SELECT 'New York' AS "location"
-       ,20000 AS "sales 2015"
-       ,30000 AS "sales 2016"
-       ,35000 AS "sales 2017"
-  FROM dual
-UNION ALL
-SELECT 'Rio', 30000, 35000, 38000
-  FROM dual
-UNION ALL
-SELECT 'Tokio', 40000, 42000, 44000
-  FROM dual;
-```
+    ``` { .sql .chart .bar }
+    SELECT 'New York' AS "location"
+           ,20000 AS "sales 2015"
+           ,30000 AS "sales 2016"
+           ,35000 AS "sales 2017"
+      FROM dual
+    UNION ALL
+    SELECT 'Rio', 30000, 35000, 38000
+      FROM dual
+    UNION ALL
+    SELECT 'Tokio', 40000, 42000, 44000
+      FROM dual;
+    ```
 
-``` { .sql .chart .barh }
-SELECT 'New York' AS "location"
-       ,20000 AS "sales 2015"
-       ,30000 AS "sales 2016"
-       ,35000 AS "sales 2017"
-  FROM dual
-UNION ALL
-SELECT 'Rio', 30000, 35000, 38000
-  FROM dual
-UNION ALL
-SELECT 'Tokio', 40000, 42000, 44000
-  FROM dual;
-```
-]'))
-  FROM dual;
-``````
+    ``` { .sql .chart .barh }
+    SELECT 'New York' AS "location"
+           ,20000 AS "sales 2015"
+           ,30000 AS "sales 2016"
+           ,35000 AS "sales 2017"
+      FROM dual
+    UNION ALL
+    SELECT 'Rio', 30000, 35000, 38000
+      FROM dual
+    UNION ALL
+    SELECT 'Tokio', 40000, 42000, 44000
+      FROM dual;
+    ```
+    ]'))
+      FROM dual;
 
 You can see in this example, that Pandoc is able to read meta data from a YAML header. You can also place in this YAML header so called header-includes for LaTeX to avoid modifying Pandoc's LaTeX template.
 
