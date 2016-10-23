@@ -30,9 +30,9 @@ Under windows you can get errors by installing seaborn or using numpy. These err
 If you are behind a proxy, then you can use `pip3 install --proxy=yourProxyURL packageName`. For the following Node.js installation you can also set the proxy in this way: `npm config set proxy yourProxyURL` and/or `npm config set https-proxy yourHttpsProxyURL`
 
 - Download and unpack [Markdown Reporter](https://github.com/ogobrecht/markdown-reporter/releases/latest)
-- Call in the root dir (containing package.json) `npm install`
+- Call in the root directory (containing package.json) `npm install`
 - Then start the printserver by calling `node app.js`
-- In you browser call http://localhost:3000, play around with the [Pandoc example form](http://localhost:3000/pandoc/example-form) and check if everything is working like expected
+- In your browser call http://localhost:3000, play around with the [Pandoc example form](http://localhost:3000/pandoc/example-form) and check if everything is working like expected
 - As the last step install in your database the Markdown Reporter helper package (located in the subdirectory `oracle_plsql`) and configure in the body the printserver URL - don't forget to setup a network ACL for your new printserver
 - Optional you can install the APEX demo application located in the subdirectory `oracle_apex`, which has the APEX Mardown plugin preinstalled
 
@@ -86,7 +86,7 @@ SELECT httpuritype('http://yourHost:yourPort/pandoc').getclob() FROM dual;
 
 Now try to convert your first report by calling this example Markdown:
 
-~~~sql
+``````sql
 SELECT markdown_reporter.convert_document(p_format   => 'pdf'
                                          ,p_markdown => markdown_reporter.preprocess_data(p_markdown => q'[
 ---
@@ -148,7 +148,7 @@ SELECT 'Tokio', 40000, 42000, 44000
 ```
 ]'))
   FROM dual;
-~~~
+``````
 
 You can see in this example, that Pandoc is able to read meta data from a YAML header. You can also place in this YAML header so called header-includes for LaTeX to avoid modifying Pandoc's LaTeX template.
 
