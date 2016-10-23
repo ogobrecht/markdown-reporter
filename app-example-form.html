@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<meta name="robots" content="noindex">
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Pandoc example form</title>
+<style>.lable {text-align:right;}</style>
+</head>
+<body>
+<form method="post" action="http://192.168.56.1:3000/pandoc/" id="postDataToUrlHelper">
+<table>
+<tr><td class="lable">File Name</td><td><input name="filename" size="30" value="test"></input></td></tr>
+<tr><td class="lable">Format</td><td><select name="format"><option value="html" selected>HTML</option><option value="pdf">PDF</option><option value="docx">DOCX</option></select></td>
+<tr><td class="lable">Markdown</td><td><textarea name="markdown" cols="80" rows="15">
+---
+title: Test Document - Reporting A Different Way, Thank Markdown
+author: Ottmar Gobrecht
+date: 2016-10-10
+lang: en
+papersize: a4paper
+geometry: top=2cm, bottom=2cm, left=2cm, right=2cm
+fontsize: 11pt
+documentclass: article
+classoption: twocolumn
+---
+
+*Some detailed explanation for your report.*
+
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet...
+
+``` { .sql .chart .pie caption="A pie chart with hypothetical values"}
+Location,Sales 2015,Sales 2016,Sales 2017
+New York,20000,30000,35000
+Rio,30000,35000,38000
+Tokio,40000,42000,44000
+```
+
+``` { .sql .chart .bar }
+Location,Sales 2015,Sales 2016,Sales 2017
+New York,20000,30000,35000
+Rio,30000,35000,38000
+Tokio,40000,42000,44000
+```
+
+``` { .sql .chart .barh }
+Location,Sales 2015,Sales 2016,Sales 2017
+New York,20000,30000,35000
+Rio,30000,35000,38000
+Tokio,40000,42000,44000
+```
+</textarea></td></tr>
+<tr><td class="lable">Options</td><td><textarea name="options" cols="60" rows="3"></textarea></td></tr>
+<tr><td></td><td><input type="submit" value="Submit"></td></tr>
+</table>
+</form>
+</body>
+</html>

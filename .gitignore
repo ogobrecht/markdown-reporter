@@ -1,0 +1,11 @@
+node_modules/
+data/dev/*.json
+data/dev/*.svg
+data/dev/*.png
+data/dev/*.html
+data/dev/*.docx
+data/dev/*.pdf
+data/dev/*.de.md
+data/userprofile/*
+pandoc_filter/__pycache__
+_misc/
