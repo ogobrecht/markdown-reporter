@@ -72,13 +72,13 @@ README.md
 
 In `data/dev` you will develop and test your shell-command, which is called later on from Node.js. The shipped convert.bat can be the starting point for your customizing. If you are done you copy it over to the `prod folder`. The app.js is developed to run OS independend, but currently only tested under Windows. Thats is also the reason why currently a shell command for Linux/Mac is missing. If you plan to run under Linux/Mac, you have to modify the app.js and replace then the convert.bat with convert.sh or whatever you call your shell command.
 
-The pandoc option `--data-dir` is set to the `data` directory. You can put your custom templates in the subdirectory `data/templates`. Pandoc is searching there for the default templates. See also the [pandoc readme](http://pandoc.org/README.html#general-options)
+The Pandoc option `--data-dir` is set to the `data` directory. You can put your custom templates in the subdirectory `data/templates`. Pandoc is searching there for the default templates. See also the [pandoc readme](http://pandoc.org/README.html#general-options)
 
 Node is creating for each conversion a temporary folder under the `data` directory. If somethings is going wrong during the conversion, the folder is not deleted - you are able to go into this folder and analyze the problem. The originally used shell command and options are prepended to the command.bat in the temporary folder.
 
 If you have ideas for the Node.js backend or the conversion process please let me know and become a contributor to this project :-)
 
-If your system is working locally then it is time to check it over a HTTP connection from within your database:
+Be patient - the very first run can take some time, because Python is compiling the scripts and LaTeX needs also some time to cache the needed fonts. It is strongly recommended to test everything locally first with a shell command. If your system is working locally then it is time to check it over a HTTP connection from within your database:
 
 ```
 SELECT httpuritype('http://yourHost:yourPort/pandoc').getclob() FROM dual;
@@ -86,65 +86,38 @@ SELECT httpuritype('http://yourHost:yourPort/pandoc').getclob() FROM dual;
 
 Now try to generate your first report by executing this example Query in a SQL tool of your choice:
 
-    SELECT markdown_reporter.convert_document(p_format   => 'pdf'
+    SELECT markdown_reporter.convert_document(p_format   => 'pdf' -- html, pdf, docx (with png's only)
                                              ,p_markdown => markdown_reporter.preprocess_data(p_markdown => q'[
-    ---
-    title: Testdocument - Reporting a different way, thank Markdown
-    author: Ottmar Gobrecht
-    date: 2016-10-10
-    lang: en
-    papersize: a4paper
-    geometry: top=2cm, bottom=2cm, left=2cm, right=2cm
-    fontsize: 11pt
-    documentclass: article
-    classoption: twocolumn
-    ---
+	---
+	title: Reporting Differently, Thank Markdown - Demo Report
+	author: Ottmar Gobrecht
+	date: 2016-11-05
+	lang: en
+	papersize: A4
+	geometry: top=2cm, bottom=2cm, left=2cm, right=2cm
+	fontsize: 11pt
+	documentclass: article
+	classoption: twocolumn
+	links-as-notes: true
+	---
 
     *Some detailed explanation for your report.*
 
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet...
 
-    ``` { .sql .chart .pie caption="A pie chart with hypothetical values" }
-    SELECT 'New York' AS "location"
-           ,20000 AS "sales 2015"
-           ,30000 AS "sales 2016"
-           ,35000 AS "sales 2017"
-      FROM dual
-    UNION ALL
-    SELECT 'Rio', 30000, 35000, 38000
-      FROM dual
-    UNION ALL
-    SELECT 'Tokio', 40000, 42000, 44000
-      FROM dual;
-    ```
-
-    ``` { .sql .chart .bar }
-    SELECT 'New York' AS "location"
-           ,20000 AS "sales 2015"
-           ,30000 AS "sales 2016"
-           ,35000 AS "sales 2017"
-      FROM dual
-    UNION ALL
-    SELECT 'Rio', 30000, 35000, 38000
-      FROM dual
-    UNION ALL
-    SELECT 'Tokio', 40000, 42000, 44000
-      FROM dual;
-    ```
-
-    ``` { .sql .chart .barh }
-    SELECT 'New York' AS "location"
-           ,20000 AS "sales 2015"
-           ,30000 AS "sales 2016"
-           ,35000 AS "sales 2017"
-      FROM dual
-    UNION ALL
-    SELECT 'Rio', 30000, 35000, 38000
-      FROM dual
-    UNION ALL
-    SELECT 'Tokio', 40000, 42000, 44000
-      FROM dual;
-    ```
+	``` { .sql .chart .line caption="Population Development - New York, Rio, Tokio"}
+	SELECT 1940    AS "Population Development"
+		 , 7454995 AS "New York"
+		 , 1759277 AS "Rio"
+		 , 6778804 AS "Tokio"           FROM dual UNION ALL
+	SELECT 1950,7891957,2375280,5385071 FROM dual UNION ALL
+	SELECT 1960,7781984,3300431,8310027 FROM dual UNION ALL
+	SELECT 1970,7895563,4251918,8840942 FROM dual UNION ALL
+	SELECT 1980,7071639,5090723,8351893 FROM dual UNION ALL
+	SELECT 1990,7322564,5480768,8163573 FROM dual UNION ALL
+	SELECT 2000,8008278,5857904,8134688 FROM dual UNION ALL
+	SELECT 2010,8175133,6320446,8980768 FROM dual;
+	```
     ]'))
       FROM dual;
 
@@ -152,8 +125,21 @@ You can see in this example, that Pandoc is able to read meta data from a YAML h
 
 ## Chart Development
 
-Currently three chart types are delivered with Markdown Reporter: pie, bar and bar horizontal (called barh in matplotlib)
+Currently eight chart types are delivered with Markdown Reporter: `line`, `area`, `area_stacked`, `bar`, `bar_stacked`, `barh` (horizontal),  `barh_horizontal` and `pie`.
 
-For chart development it is recommended to install all software local on your desktop PC and start then the Jupyter notebook server by calling the shell command `jupyter notebook`. In the Markdown Reporter subdirectory docs you will find an example notebook (markdown-reporter.ipynb) - you can use this as an starting point for your customizing and new chart types.
+For chart development it is recommended to install all software local on your PC and start then the Jupyter notebook server by calling the shell command `jupyter notebook`. In the Markdown Reporter subdirectory docs you will find an example notebook (markdown-reporter.ipynb) - you can use this as an starting point for your customizing and new chart types.
 
 If you have created some new chart logic then it is time to modify the Pandoc filter `pandoc_filter/pandocFilterMarkdownReporter.py` and also to become a contributor for this project :-)
+
+## Changelog
+
+### 0.2.0 (2016-11-12)
+
+- New chart types: line, area, area_stacked, bar_stacked, barh_stacked
+- More chart options: See [demo report](https://github.com/ogobrecht/markdown-reporter/blob/master/docs/markdown-reporter-demo-report.md) and [demo report SQL version](https://github.com/ogobrecht/markdown-reporter/blob/master/docs/markdown-reporter-demo-report.md.sql)
+- Images in HTML format have now default styles - IE scales now correct and images have always a maximum width of 100%
+
+
+### 0.1.0 (2016-10-22)
+
+- First public version

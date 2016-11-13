@@ -1,15 +1,16 @@
 echo off
 cls
 
-if [%1]==[] echo Please provide the desired target format as a parameter - example: pandoc html & goto end
+if [%1]==[] echo Please provide the desired target format as a parameter - example: convert html & goto end
 
 set       format=%1
 set filterformat=%1
 set       filter=..\..\pandoc_filter\pandocFilterMarkdownReporter.py
 set      datadir=..
 
-rem remove the first parameter
+rem remove the first parameter (the format)
 shift
+rem fill var params with remaining parameters
 set params=%1
 :loop
 shift

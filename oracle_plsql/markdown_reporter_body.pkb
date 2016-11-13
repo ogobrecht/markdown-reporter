@@ -41,8 +41,7 @@ CREATE OR REPLACE PACKAGE BODY markdown_reporter IS
 
   ----------------------------------------------------------------------------- 
   FUNCTION util_query2mdtab(p_query           IN VARCHAR2
-                           ,p_nls_date_format VARCHAR2 DEFAULT 'YYYY-MM-DD HH24:MI:SS'
-                           ,p_debug           VARCHAR2 DEFAULT NULL)
+                           ,p_nls_date_format VARCHAR2 DEFAULT 'YYYY-MM-DD HH24:MI:SS')
     RETURN CLOB IS
     v_return                 CLOB;
     v_return_cache           VARCHAR2(32767);
@@ -109,7 +108,7 @@ CREATE OR REPLACE PACKAGE BODY markdown_reporter IS
         util_clob_append(v_return, v_return_cache, chr(10) || '|');
         IF v_row_cnt < g_max_rows_util_query2mdtab
         THEN
-          -- normal processing: |val|val|val|val|val>
+          -- normal processing: |val|val|val|val|val|
           FOR i IN 1 .. v_col_cnt
           LOOP
             dbms_sql.column_value(v_cursor, i, v_col_val);
@@ -148,11 +147,6 @@ CREATE OR REPLACE PACKAGE BODY markdown_reporter IS
     RETURN v_return;
   EXCEPTION
     WHEN OTHERS THEN
-      IF p_debug IS NOT NULL
-      THEN
-        dbms_output.put_line(SQLERRM || chr(10) ||
-                             dbms_utility.format_error_backtrace);
-      END IF;
       dbms_sql.close_cursor(v_cursor);
       dbms_lob.freetemporary(v_return);
       EXECUTE IMMEDIATE 'alter session set nls_date_format=''' ||
@@ -164,8 +158,7 @@ CREATE OR REPLACE PACKAGE BODY markdown_reporter IS
 
   ----------------------------------------------------------------------------- 
   FUNCTION util_query2csv(p_query           IN VARCHAR2
-                         ,p_nls_date_format VARCHAR2 DEFAULT 'YYYY-MM-DD HH24:MI:SS'
-                         ,p_debug           VARCHAR2 DEFAULT NULL)
+                         ,p_nls_date_format VARCHAR2 DEFAULT 'YYYY-MM-DD HH24:MI:SS')
     RETURN CLOB IS
     v_return                 CLOB;
     v_return_cache           VARCHAR2(32767);
@@ -253,11 +246,6 @@ CREATE OR REPLACE PACKAGE BODY markdown_reporter IS
     RETURN v_return;
   EXCEPTION
     WHEN OTHERS THEN
-      IF p_debug IS NOT NULL
-      THEN
-        dbms_output.put_line(SQLERRM || chr(10) ||
-                             dbms_utility.format_error_backtrace);
-      END IF;
       dbms_sql.close_cursor(v_cursor);
       dbms_lob.freetemporary(v_return);
       EXECUTE IMMEDIATE 'alter session set nls_date_format=''' ||
@@ -266,72 +254,7 @@ CREATE OR REPLACE PACKAGE BODY markdown_reporter IS
   END util_query2csv;
 
   ----------------------------------------------------------------------------- 
-  FUNCTION util_unibar(p_value                  IN NUMBER
-                      ,p_scale                  IN NUMBER DEFAULT 1
-                      ,p_width_block_characters IN NUMBER DEFAULT 25
-                      ,p_fill_scale             IN NUMBER DEFAULT 0)
-    RETURN VARCHAR2 DETERMINISTIC IS
-    v_return              VARCHAR2(1000);
-    v_value_one_character NUMBER;
-  BEGIN
-    IF p_value IS NOT NULL
-    THEN
-      -- calculate the value of one character
-      v_value_one_character := p_scale / p_width_block_characters;
-      -- create textbar: full block characters
-      FOR i IN 1 .. floor(p_value / v_value_one_character)
-      LOOP
-        v_return := v_return || unistr('\2588');
-      END LOOP;
-      -- create textbar: last character - can be between 0 and 8(rounded), because there
-      -- are block character available in unicode for 1/8, 1/4, 3/8, 1/2, 5/8, 3/4, 7/8 and 1;
-      CASE round((p_value / v_value_one_character -
-             floor(p_value / v_value_one_character)) / 0.125)
-        WHEN 1 THEN
-          -- 1/8 = char U+258F
-          v_return := v_return || unistr('\258F');
-        WHEN 2 THEN
-          -- 2/8 = char U+258E
-          v_return := v_return || unistr('\258E');
-        WHEN 3 THEN
-          -- 3/8 = char U+258D
-          v_return := v_return || unistr('\258D');
-        WHEN 4 THEN
-          -- 4/8 = char U+258C
-          v_return := v_return || unistr('\258C');
-        WHEN 5 THEN
-          -- 5/8 = char U+258B
-          v_return := v_return || unistr('\258B');
-        WHEN 6 THEN
-          -- 6/8 = char U+258A
-          v_return := v_return || unistr('\258A');
-        WHEN 7 THEN
-          -- 7/8 = char U+2589
-          v_return := v_return || unistr('\2589');
-        WHEN 8 THEN
-          -- 8/8 = char U+2588
-          v_return := v_return || unistr('\2588');
-        ELSE
-          NULL;
-      END CASE;
-      -- fill up scale with shade
-      IF p_fill_scale = 1
-      THEN
-        FOR i IN 1 .. (p_width_block_characters - nvl(length(v_return), 0))
-        LOOP
-          v_return := v_return || unistr('\2591');
-        END LOOP;
-      END IF;
-    END IF;
-    RETURN v_return;
-  EXCEPTION
-    WHEN value_error THEN
-      RETURN unistr('\221E');
-  END util_unibar;
-
-  ----------------------------------------------------------------------------- 
-  FUNCTION preprocess_data(p_markdown CLOB, p_debug VARCHAR2 DEFAULT NULL)
-    RETURN CLOB IS
+  FUNCTION preprocess_data(p_markdown CLOB) RETURN CLOB IS
     v_markdown               CLOB;
     v_pattern                VARCHAR2(100) := '`{3,}\s*(\{{1}[^}]*\.sql{1}[^}]*\.(chart|table){1}[^}]*\}{1})([^`]*)`{3,}'; -- confused by the regex? try it out on http://regexr.com
     v_code_block             VARCHAR2(32767);
@@ -370,25 +293,22 @@ CREATE OR REPLACE PACKAGE BODY markdown_reporter IS
                                                ,v_occurence
                                                ,'i'
                                                ,3);
-      IF p_debug IS NOT NULL
-      THEN
-        dbms_output.put_line(v_select_statement);
-      END IF;
-      v_markdown := regexp_replace(v_markdown
-                                  ,v_pattern
-                                  ,CASE lower(v_target_type)
-                                     WHEN 'table' THEN
-                                      chr(10) ||
-                                      util_query2mdtab(v_select_statement) ||
-                                      chr(10)
-                                     WHEN 'chart' THEN
-                                      '``` ' || v_fenced_code_attributes ||
-                                      chr(10) ||
-                                      util_query2csv(v_select_statement) ||
-                                      '```'
-                                   END
-                                  ,1
-                                  ,v_occurence);
+      v_markdown               := regexp_replace(v_markdown
+                                                ,v_pattern
+                                                ,CASE lower(v_target_type)
+                                                   WHEN 'table' THEN
+                                                    chr(10) ||
+                                                    util_query2mdtab(v_select_statement) ||
+                                                    chr(10)
+                                                   WHEN 'chart' THEN
+                                                    '``` ' ||
+                                                    v_fenced_code_attributes ||
+                                                    chr(10) ||
+                                                    util_query2csv(v_select_statement) ||
+                                                    '```'
+                                                 END
+                                                ,1
+                                                ,v_occurence);
       IF v_target_type = 'table'
       THEN
         v_no_replaced_md_tables := v_no_replaced_md_tables + 1;
@@ -400,8 +320,7 @@ CREATE OR REPLACE PACKAGE BODY markdown_reporter IS
   ----------------------------------------------------------------------------- 
   FUNCTION convert_document(p_markdown CLOB
                            ,p_format   VARCHAR2 DEFAULT 'html'
-                           ,p_options  VARCHAR2 DEFAULT NULL
-                           ,p_debug    VARCHAR2 DEFAULT NULL) RETURN BLOB IS
+                           ,p_options  VARCHAR2 DEFAULT NULL) RETURN BLOB IS
     v_request        utl_http.req;
     v_response       utl_http.resp;
     v_post_data      CLOB;
@@ -475,24 +394,6 @@ CREATE OR REPLACE PACKAGE BODY markdown_reporter IS
       v_offset := v_offset + v_amount;
     END LOOP;
     --------------------------------------------------------------------------
-    -- DEBUG ONLY: print response headers
-    IF p_debug IS NOT NULL
-    THEN
-      DECLARE
-        v_http_header     VARCHAR2(200);
-        v_http_header_val VARCHAR2(200);
-      BEGIN
-        FOR i IN 1 .. utl_http.get_header_count(v_response)
-        LOOP
-          utl_http.get_header(v_response
-                             ,i
-                             ,v_http_header
-                             ,v_http_header_val);
-          dbms_output.put_line(v_http_header || ': ' || v_http_header_val);
-        END LOOP;
-      END;
-    END IF;
-    --------------------------------------------------------------------------
     -- get the response and copy it into the BLOB
     v_response := utl_http.get_response(v_request);
     BEGIN
@@ -526,7 +427,15 @@ CREATE OR REPLACE PACKAGE BODY markdown_reporter IS
 -----------------------------------------------------------------------------
 -- PACKAGE INITIALIZATION
 BEGIN
-  -- modify this to your needs
+  --> modify this to your needs - here a possible example:
+  /* 
+  IF tools.environment.get_system_role != 'PROD'
+  THEN
+    g_print_server_url := 'http://apexdev.mycompany.tld/pandoc';
+  ELSE
+    g_print_server_url := 'http://apex.mycompany.tld/pandoc';
+  END IF;
+  */
   g_print_server_url := 'http://192.168.56.1:3000/pandoc';
 END markdown_reporter;
 /

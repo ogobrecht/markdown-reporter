@@ -1,7 +1,7 @@
 echo off
 cls
 
-if [%1]==[] echo Please provide the desired target format as a parameter - example: pandoc html & goto end
+if [%1]==[] echo Please provide the desired target format as a parameter - example: convert html & goto end
 
 set       format=%1
 set filterformat=%1
@@ -11,8 +11,9 @@ set       pandoc=c:\og\PortableApps\pandoc\pandoc.exe
 set       python=c:\og\PortableApps\python\python-3.5.2.amd64\python.exe
 set        latex=c:\og\PortableApps\miktex\miktex\bin\lualatex.exe
 
-rem remove the first parameter
+rem remove the first parameter (the format)
 shift
+rem fill var params with remaining parameters
 set params=%1
 :loop
 shift
